@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amoboba — grunge cover</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Unbounded:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;font-family:"Arimo",Arial,sans-serif;background:#050505;color:#ededed}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:#050505}
+    body{overflow-x:hidden}
+    .grunge{position:relative;min-height:100svh;overflow:hidden;isolation:isolate;padding:clamp(34px,6vw,86px) clamp(22px,5vw,76px) clamp(104px,14vh,160px);display:flex;align-items:flex-end;background:#050505}
+    .grunge::before{content:"";position:absolute;z-index:-3;inset:-15%;background:repeating-linear-gradient(104deg,transparent 0 42px,rgba(255,255,255,.025) 43px 45px,transparent 46px 94px);transform:rotate(-4deg)}
+    .grunge::after{content:"";position:absolute;z-index:5;inset:0;pointer-events:none;opacity:.48;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");mix-blend-mode:screen}
+    .texture{position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,transparent 0 7%,rgba(255,255,255,.035) 7% 7.2%,transparent 7.2% 86%,rgba(255,255,255,.025) 86% 86.2%,transparent 86.2%),repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,255,255,.018) 6px 7px)}
+    .copy{position:relative;z-index:2;width:100%}
+    .kicker{width:max-content;max-width:100%;padding:8px 12px;margin:0 0 clamp(22px,4vh,40px) 3px;background:#e9e9e9;color:#080808;font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;transform:rotate(-1deg)}
+    h1{position:relative;width:max-content;max-width:100%;margin:0;font-family:"Unbounded",Arial,sans-serif;font-size:clamp(64px,13.2vw,204px);line-height:.78;font-weight:900;letter-spacing:0;color:#ededed;text-transform:uppercase;filter:contrast(1.2)}
+    h1::before{content:attr(data-text);position:absolute;inset:0;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.42);transform:translate(9px,8px);clip-path:polygon(0 4%,100% 1%,100% 31%,0 36%,0 52%,100% 48%,100% 67%,0 72%,0 86%,100% 81%,100% 100%,0 100%)}
+    h1::after{content:attr(data-text);position:absolute;inset:0;color:#050505;text-shadow:2px 0 #d8d8d8;clip-path:polygon(0 18%,100% 14%,100% 22%,0 26%,0 58%,100% 53%,100% 59%,0 65%,0 88%,100% 84%,100% 91%,0 96%);transform:translateX(-7px);opacity:.42}
+    .lead{margin:clamp(28px,5vh,50px) 0 0 2px;font-size:clamp(19px,2.25vw,32px);line-height:1.08;font-weight:700;color:#d0d0d0;text-transform:uppercase}
+    .action{display:inline-flex;align-items:center;gap:20px;margin-top:clamp(25px,4vh,40px);padding:12px 0;color:#d8d8d8;text-decoration:none;border-bottom:2px solid #d8d8d8;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .action span{font-size:20px}
+    .mark{position:absolute;z-index:0;right:-6vw;top:2%;height:86%;width:auto;opacity:.07;transform:rotate(-7deg)}
+    .slashes{position:absolute;z-index:1;right:4vw;top:10%;width:clamp(150px,19vw,300px);height:clamp(100px,14vw,220px);transform:rotate(-5deg)}
+    .slashes i{position:absolute;top:0;bottom:0;width:21%;background:#e5e5e5;clip-path:polygon(32% 0,100% 0,68% 100%,0 100%)}
+    .slashes i:nth-child(1){left:0}.slashes i:nth-child(2){left:29%}.slashes i:nth-child(3){left:58%}
+    .tape{position:absolute;z-index:4;left:-3%;right:-3%;bottom:5%;height:36px;overflow:hidden;background:#dedede;color:#090909;transform:rotate(-2deg);border-top:3px solid #050505;border-bottom:3px solid #050505}
+    .tape span{display:block;width:max-content;font:900 14px/30px "Unbounded",Arial,sans-serif;letter-spacing:.08em;white-space:nowrap;animation:tape 18s linear infinite}
+    @keyframes tape{to{transform:translateX(-25%)}}
+    @media(max-width:760px){.grunge{min-height:92svh;align-items:center;padding-top:130px;padding-bottom:120px}.kicker{font-size:8px}h1{font-size:clamp(58px,23vw,92px);line-height:.82}.lead{font-size:clamp(17px,5.5vw,24px)}.mark{height:62%;right:-42%;top:12%}.slashes{right:-10%;top:11%;opacity:.35}.tape{bottom:4%;height:32px}.tape span{font-size:12px;line-height:26px}}
+  </style>
+</head>
+<body>
+  <main class="grunge">
+    <div class="texture" aria-hidden="true"></div>
+    <div class="slashes" aria-hidden="true"><i></i><i></i><i></i></div>
+    <svg class="mark" viewBox="188 353 937 537" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" fill="#FFFFFF" d="M391,353 L507,353 L309,890 L188,890 Z M557,353 L672,353 L474,890 L360,890 Z M723,353 L879,353 L1125,890 L521,890 Z M803,473 L884,656 L731,656 Z M689,777 L934,777 L984,890 L646,890 Z"/></svg>
+    <div class="copy">
+      <p class="kicker">Нас сложно собрать в одну категорию</p>
+      <h1 data-text="AMOBOBA">AMOBOBA</h1>
+      <p class="lead">Проекты с характером.<br>Без единого шаблона.</p>
+      <a class="action" href="/">Вернуться на Amoboba <span>↗</span></a>
+    </div>
+    <div class="tape" aria-hidden="true"><span>AMOBOBA / AMOBOBA / AMOBOBA / AMOBOBA / AMOBOBA / AMOBOBA /</span></div>
+  </main>
+</body>
+</html>

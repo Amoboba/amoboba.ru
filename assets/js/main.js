@@ -11,6 +11,160 @@ const FINE    = matchMedia('(hover:hover) and (pointer:fine)').matches;
 const clamp   = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp    = (a, b, t) => a + (b - a) * t;
 
+/* WebGPU: монохромные металлические волны на первом экране. */
+(async () => {
+  const canvas = document.getElementById('hero-gpu');
+  if (!canvas || !navigator.gpu) return;
+
+  try {
+    const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+    if (!adapter) return;
+    const device = await adapter.requestDevice();
+    const context = canvas.getContext('webgpu');
+    if (!context) return;
+
+    const format = navigator.gpu.getPreferredCanvasFormat();
+    const shader = device.createShaderModule({ code: `
+      struct Uniforms {
+        resolution: vec2f,
+        time: f32,
+        aspect: f32,
+        pointer: vec2f,
+        padding: vec2f,
+      };
+      @group(0) @binding(0) var<uniform> u: Uniforms;
+
+      struct VertexOut { @builtin(position) position: vec4f, @location(0) uv: vec2f };
+
+      @vertex fn vs(@builtin(vertex_index) i: u32) -> VertexOut {
+        var positions = array<vec2f, 3>(vec2f(-1.0,-1.0), vec2f(3.0,-1.0), vec2f(-1.0,3.0));
+        var out: VertexOut;
+        out.position = vec4f(positions[i], 0.0, 1.0);
+        out.uv = positions[i] * 0.5 + 0.5;
+        return out;
+      }
+
+      fn hash21(p: vec2f) -> f32 {
+        return fract(sin(dot(p, vec2f(127.1, 311.7))) * 43758.5453);
+      }
+
+      fn valueNoise(p: vec2f) -> f32 {
+        let cell = floor(p);
+        let local = fract(p);
+        let smoothLocal = local * local * (3.0 - 2.0 * local);
+        let a = hash21(cell);
+        let b = hash21(cell + vec2f(1.0, 0.0));
+        let c = hash21(cell + vec2f(0.0, 1.0));
+        let d = hash21(cell + vec2f(1.0, 1.0));
+        return mix(mix(a, b, smoothLocal.x), mix(c, d, smoothLocal.x), smoothLocal.y);
+      }
+
+      fn lowPassNoise(p: vec2f, t: f32) -> f32 {
+        let drift = vec2f(t * 0.055, -t * 0.035);
+        let first = valueNoise(p * 2.15 + drift);
+        let second = valueNoise(p * 4.1 - drift * 1.4) * 0.48;
+        let third = valueNoise(p * 7.6 + drift * 0.7) * 0.22;
+        return (first + second + third) / 1.7;
+      }
+
+      @fragment fn fs(in: VertexOut) -> @location(0) vec4f {
+        var p = in.uv * 2.0 - 1.0;
+        p.x *= u.aspect;
+        let mouse = vec2f((u.pointer.x * 2.0 - 1.0) * u.aspect, 1.0 - u.pointer.y * 2.0);
+        let influence = exp(-2.8 * dot(p - mouse, p - mouse));
+        let t = u.time * 0.22;
+        let renderNoise = lowPassNoise(p, t);
+
+        let warp = 0.16 * sin(p.y * 3.2 - t)
+          + 0.08 * sin((p.x + p.y) * 5.0 + t * 1.7)
+          + (renderNoise - 0.5) * 0.13;
+        let diagonal = p.x * 0.78 + p.y * 0.46 + warp + influence * 0.18;
+        let bands = 0.5 + 0.5 * sin(diagonal * 12.0 - t * 2.0);
+        let sharp = pow(bands, 9.0);
+        let soft = 0.5 + 0.5 * sin(diagonal * 3.1 + t);
+        let fold = pow(abs(sin((p.x * 0.42 - p.y * 0.72) * 5.2 + t)), 18.0);
+        let vignette = smoothstep(1.45, 0.16, length(p * vec2f(0.72, 1.0)));
+        let noisyLight = (renderNoise - 0.5) * (0.035 + sharp * 0.075 + fold * 0.045);
+        let light = (0.035 + soft * 0.055 + sharp * 0.20 + fold * 0.10 + influence * 0.075 + noisyLight) * vignette;
+        let tone = clamp(light, 0.0, 0.34);
+        return vec4f(vec3f(tone), 1.0);
+      }
+    ` });
+
+    const uniformBuffer = device.createBuffer({
+      size: 32,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    const pipeline = device.createRenderPipeline({
+      layout: 'auto',
+      vertex: { module: shader, entryPoint: 'vs' },
+      fragment: { module: shader, entryPoint: 'fs', targets: [{ format }] },
+      primitive: { topology: 'triangle-list' },
+    });
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+    });
+
+    let pointerX = 0.72, pointerY = 0.38, raf = 0, visible = true;
+    const hero = canvas.closest('.hero');
+    hero?.addEventListener('pointermove', event => {
+      const rect = hero.getBoundingClientRect();
+      pointerX = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+      pointerY = clamp((event.clientY - rect.top) / rect.height, 0, 1);
+    }, { passive: true });
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      context.configure({ device, format, alphaMode: 'opaque' });
+    };
+    new ResizeObserver(resize).observe(canvas);
+    resize();
+
+    const observer = new IntersectionObserver(entries => {
+      visible = entries[0]?.isIntersecting ?? true;
+      if (visible && !raf) raf = requestAnimationFrame(frame);
+    });
+    observer.observe(canvas);
+
+    const start = performance.now();
+    function frame(now) {
+      raf = 0;
+      if (!visible) return;
+      const width = canvas.width, height = canvas.height;
+      if (!width || !height) return;
+      const values = new Float32Array([
+        width, height,
+        REDUCED ? 0 : (now - start) / 1000,
+        width / height,
+        pointerX, pointerY,
+        0, 0,
+      ]);
+      device.queue.writeBuffer(uniformBuffer, 0, values);
+      const encoder = device.createCommandEncoder();
+      const pass = encoder.beginRenderPass({
+        colorAttachments: [{
+          view: context.getCurrentTexture().createView(),
+          clearValue: { r: 0.02, g: 0.02, b: 0.02, a: 1 },
+          loadOp: 'clear', storeOp: 'store',
+        }],
+      });
+      pass.setPipeline(pipeline);
+      pass.setBindGroup(0, bindGroup);
+      pass.draw(3);
+      pass.end();
+      device.queue.submit([encoder.finish()]);
+      if (!REDUCED) raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  } catch (error) {
+    console.warn('WebGPU hero fallback:', error);
+  }
+})();
+
 /* «живёт» ли элемент в кадре — общий помощник для ленивых анимаций */
 function whenVisible(el, on, off) {
   const io = new IntersectionObserver(es => {
@@ -174,17 +328,6 @@ if (FINE) {
   });
 }
 
-/* ------------------------------- warden3: эхо-пятно следует за указателем */
-if (FINE && !REDUCED) {
-  document.querySelectorAll('[data-cursor]').forEach(sec => {
-    sec.addEventListener('pointermove', e => {
-      const r = sec.getBoundingClientRect();
-      sec.style.setProperty('--px', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
-      sec.style.setProperty('--py', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
-    }, { passive: true });
-  });
-}
-
 /* -------------------------------------------- параллакс скрина «Каталожки» */
 (() => {
   const shot = document.querySelector('.kat-shot');
@@ -205,247 +348,6 @@ if (FINE && !REDUCED) {
   addEventListener('scroll', () => {
     if (live && !ticking) { ticking = true; requestAnimationFrame(update); }
   }, { passive: true });
-})();
-
-/* ==========================================================================
-   Герой: хромовая надпись.
-   База (буквы + хром + шум) пересчитывается только при ресайзе,
-   а по кадрам гоняется лишь блик — он ловит указатель.
-   ========================================================================== */
-(() => {
-  const cv = document.getElementById('silver');
-  if (!cv) return;
-  const ctx  = cv.getContext('2d');
-  const base = document.createElement('canvas');
-  const bctx = base.getContext('2d', { willReadFrequently: true });
-
-  const LINES  = ['Темки крутятся,', 'бабки мутятся'];
-  const FONT   = '900 SIZEpx "Myriad Pro","Myriad","Segoe UI",-apple-system,"Helvetica Neue",Arial,sans-serif';
-  const CHROME = [
-    [0.00,'#ffffff'],[0.10,'#dfe3e8'],[0.26,'#9aa0a8'],[0.44,'#4c525a'],
-    [0.49,'#1c1f24'],[0.52,'#c8cdd4'],[0.62,'#ffffff'],[0.74,'#8f959d'],
-    [0.86,'#d9dce1'],[1.00,'#63686f']
-  ];
-  /* сумма шести равномерных — почти нормальное распределение, как шум сэмплинга */
-  const rndN = () => (Math.random()+Math.random()+Math.random()+Math.random()+Math.random()+Math.random()-3)/1.5;
-
-  let wCss = 0, hCss = 0;
-
-  function renderBase() {
-    const parent = cv.parentElement;
-    wCss = parent.clientWidth;
-    if (!wCss) return;
-    const dpr   = Math.min(devicePixelRatio || 1, 2);
-    const block = Math.max(1, Math.round(dpr));
-
-    /* чем уже экран, тем большую долю ширины занимает надпись */
-    const fill = wCss < 520 ? 0.94 : wCss < 820 ? 0.82 : 0.67;
-    let size = Math.min(wCss * 0.075, 64);
-    bctx.font = FONT.replace('SIZE', size);
-    const widest = Math.max(...LINES.map(l => bctx.measureText(l).width));
-    if (widest > 0) size = Math.min(size * (wCss * fill) / widest, 72);
-
-    const lh = size * 1.06;
-    hCss = Math.ceil(lh * LINES.length + size * 0.35);
-
-    cv.style.width  = wCss + 'px';
-    cv.style.height = hCss + 'px';
-    cv.width  = base.width  = Math.round(wCss * dpr);
-    cv.height = base.height = Math.round(hCss * dpr);
-
-    bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    bctx.clearRect(0, 0, wCss, hCss);
-
-    // 1. буквы
-    bctx.font = FONT.replace('SIZE', size);
-    bctx.textAlign = 'center';
-    bctx.textBaseline = 'middle';
-    bctx.fillStyle = '#fff';
-    const top = hCss / 2 - lh * (LINES.length - 1) / 2;
-    LINES.forEach((l, i) => bctx.fillText(l, wCss / 2, top + i * lh));
-
-    // 2. заливка хромом внутри букв
-    const g = bctx.createLinearGradient(0, top - lh * 0.6, 0, top + lh * (LINES.length - 0.4));
-    CHROME.forEach(([p, c]) => g.addColorStop(p, c));
-    bctx.globalCompositeOperation = 'source-in';
-    bctx.fillStyle = g;
-    bctx.fillRect(0, 0, wCss, hCss);
-    bctx.globalCompositeOperation = 'source-over';
-
-    // 3. шум рендера: в тенях сэмплов меньше — зерна больше
-    bctx.setTransform(1, 0, 0, 1, 0, 0);
-    const W = base.width, H = base.height;
-    const img = bctx.getImageData(0, 0, W, H);
-    const d = img.data;
-
-    for (let y = 0; y < H; y += block) {
-      for (let x = 0; x < W; x += block) {
-        const i0 = (y * W + x) * 4;
-        if (d[i0 + 3] < 8) continue;
-
-        const lum = (d[i0] * 0.299 + d[i0 + 1] * 0.587 + d[i0 + 2] * 0.114) / 255;
-        const amp = 46 * (1 - lum) + 12;
-        const n = rndN() * amp;
-        const cr = rndN() * 6, cg = rndN() * 6, cb = rndN() * 6;
-        const fire = Math.random() < 0.00035 ? 170 + Math.random() * 85 : 0;
-
-        for (let by = 0; by < block && y + by < H; by++) {
-          for (let bx = 0; bx < block && x + bx < W; bx++) {
-            const i = ((y + by) * W + (x + bx)) * 4;
-            if (d[i + 3] < 8) continue;
-            d[i]     = clamp(d[i]     + n + cr + fire, 0, 255);
-            d[i + 1] = clamp(d[i + 1] + n + cg + fire, 0, 255);
-            d[i + 2] = clamp(d[i + 2] + n + cb + fire, 0, 255);
-          }
-        }
-      }
-    }
-    bctx.putImageData(img, 0, 0);
-    draw(performance.now());
-  }
-
-  /* блик: медленно ползёт сам и подтягивается к указателю */
-  let px = 0, py = 0, tpx = 0, tpy = 0;
-
-  function draw(t) {
-    const W = cv.width, H = cv.height;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(base, 0, 0);
-    if (!W || !H) return;
-
-    px = lerp(px, tpx, 0.08);
-    py = lerp(py, tpy, 0.08);
-
-    const c = clamp(0.5 + 0.34 * Math.sin(t * 0.00034) + px * 0.3, 0.06, 0.94);
-    const g = ctx.createLinearGradient(0, H, W, 0);
-    g.addColorStop(0, 'rgba(255,255,255,0)');
-    g.addColorStop(clamp(c - 0.13, 0, 1), 'rgba(255,255,255,0)');
-    g.addColorStop(c, 'rgba(255,255,255,.55)');
-    g.addColorStop(clamp(c + 0.13, 0, 1), 'rgba(255,255,255,0)');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-
-    // мягкое пятно света ровно под указателем
-    const rg = ctx.createRadialGradient(
-      (0.5 + px) * W, (0.5 + py) * H, 0,
-      (0.5 + px) * W, (0.5 + py) * H, Math.max(W, H) * 0.42);
-    rg.addColorStop(0, 'rgba(255,255,255,.22)');
-    rg.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = rg;
-    ctx.fillRect(0, 0, W, H);
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  /* наклон сцены и позиция блика — от указателя */
-  const stage = document.getElementById('hero-stage');
-  const hero  = cv.closest('.hero');
-  if (FINE && !REDUCED && hero) {
-    hero.addEventListener('pointermove', e => {
-      const r = hero.getBoundingClientRect();
-      tpx = clamp((e.clientX - r.left) / r.width  - 0.5, -0.5, 0.5);
-      tpy = clamp((e.clientY - r.top)  / r.height - 0.5, -0.5, 0.5);
-      if (stage) {
-        stage.style.setProperty('--rx', (tpx *  7).toFixed(2) + 'deg');
-        stage.style.setProperty('--ry', (tpy * -5).toFixed(2) + 'deg');
-      }
-    }, { passive: true });
-    hero.addEventListener('pointerleave', () => {
-      tpx = tpy = 0;
-      if (stage) { stage.style.setProperty('--rx', '0deg'); stage.style.setProperty('--ry', '0deg'); }
-    });
-  }
-
-  let raf = 0;
-  const tick = t => { draw(t); raf = requestAnimationFrame(tick); };
-  if (!REDUCED) {
-    whenVisible(cv,
-      () => { if (!raf) raf = requestAnimationFrame(tick); },
-      () => { cancelAnimationFrame(raf); raf = 0; });
-  }
-
-  let rt;
-  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(renderBase, 150); });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderBase);
-  renderBase();
-})();
-
-/* ==========================================================================
-   Sculk-Strike: слева плывут споры, справа поднимаются угли.
-   ========================================================================== */
-(() => {
-  const cv  = document.getElementById('ss-canvas');
-  const sec = document.getElementById('sculk-strike');
-  if (!cv || !sec || REDUCED) return;
-
-  const ctx = cv.getContext('2d');
-  let W = 0, H = 0, dpr = 1, parts = [], raf = 0;
-
-  function resize() {
-    const r = sec.getBoundingClientRect();
-    dpr = Math.min(devicePixelRatio || 1, 2);
-    W = cv.width  = Math.round(r.width  * dpr);
-    H = cv.height = Math.round(r.height * dpr);
-    seed();
-  }
-
-  function seed() {
-    const n = clamp(Math.round((W * H) / (26000 * dpr)), 30, 130);
-    parts = Array.from({ length: n }, () => spawn(Math.random() * H));
-  }
-
-  /* левая половина — бирюзовые споры, правая — оранжевые угли */
-  function spawn(y) {
-    const x = Math.random() * W;
-    const ember = x > W * 0.52;
-    return {
-      x, y: y == null ? H + Math.random() * 60 : y,
-      r: (ember ? 0.8 + Math.random() * 1.8 : 1.2 + Math.random() * 2.6) * dpr,
-      vy: (ember ? -0.55 - Math.random() * 0.9 : -0.12 - Math.random() * 0.22) * dpr,
-      vx: (Math.random() - 0.5) * (ember ? 0.35 : 0.16) * dpr,
-      a: (ember ? 0.35 : 0.22) + Math.random() * 0.35,
-      ph: Math.random() * Math.PI * 2,
-      ember
-    };
-  }
-
-  function frame(t) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.globalCompositeOperation = 'lighter';
-    for (const p of parts) {
-      p.x += p.vx + Math.sin(t * 0.0006 + p.ph) * 0.22 * dpr;
-      p.y += p.vy;
-      if (p.y < -20 || p.x < -20 || p.x > W + 20) Object.assign(p, spawn(null));
-
-      const flick = p.ember ? 0.65 + 0.35 * Math.sin(t * 0.008 + p.ph) : 1;
-      const a = p.a * flick;
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
-      if (p.ember) {
-        g.addColorStop(0, `rgba(255,168,64,${a})`);
-        g.addColorStop(0.4, `rgba(255,94,14,${a * 0.4})`);
-      } else {
-        g.addColorStop(0, `rgba(120,240,225,${a})`);
-        g.addColorStop(0.4, `rgba(42,211,196,${a * 0.35})`);
-      }
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 6, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalCompositeOperation = 'source-over';
-    raf = requestAnimationFrame(frame);
-  }
-
-  let rt;
-  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 180); });
-  resize();
-  whenVisible(sec,
-    () => { if (!raf) raf = requestAnimationFrame(frame); },
-    () => { cancelAnimationFrame(raf); raf = 0; });
 })();
 
 })();

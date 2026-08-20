@@ -1,0 +1,29 @@
+<!--
+  Переносимый подвал Amoboba.
+
+  1. Скопируйте assets/components/amoboba-footer.js на нужный сайт.
+  2. Подключите скрипт перед закрывающим </body>.
+  3. Заполните legal реальным названием юридического лица или ИП.
+
+  logo-side: random, left или right.
+  Без собственного slot="logo" используется высокий знак Amoboba.
+-->
+<amoboba-footer
+  logo-side="random"
+  telegram="@amoboba"
+  telegram-url="https://t.me/amoboba"
+  email="contact@amoboba.ru"
+  legal="ООО «НАЗВАНИЕ» / ИП Фамилия Имя Отчество"
+  copyright="© 2026 Amoboba"
+>
+  <!-- Необязательный собственный логотип:
+  <img slot="logo" src="/assets/logo.svg" alt="Название проекта">
+  -->
+
+  <!-- Необязательные ссылки и служебные строки внизу:
+  <div slot="extra">
+    <a href="/privacy">Политика конфиденциальности</a>
+  </div>
+  -->
+</amoboba-footer>
+<script src="assets/components/amoboba-footer.js"></script>

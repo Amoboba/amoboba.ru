@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Amoboba — темки крутятся, бабки мутятся</title>
-<meta name="description" content="Amoboba — студия. Проекты: minland, warden3, Sculk-Strike, Каталожка, InvestConnect.">
+<title>Amoboba — проекты с характером</title>
+<meta name="description" content="Amoboba. Вы можете знать нас по minland, warden, warden2, warden3, Sculk-Strike, Каталожке и InvestConnect.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Amoboba">
-<meta property="og:description" content="Темки крутятся, бабки мутятся.">
+<meta property="og:description" content="Проекты с характером. Без единого шаблона.">
 <meta property="og:url" content="https://amoboba.ru/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:wght@400;500;700&family=Unbounded:wght@400;600;800;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@500;700;800&family=Roboto:wght@400;500;700&family=Stack+Sans+Headline:wght@400;700&family=Unbounded:wght@400;600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 <noscript><style>.intro{display:none}body{overflow:auto}</style></noscript>
 </head>
@@ -38,7 +38,7 @@
   <div class="top" id="top">
     <button class="bars" id="bars" type="button" tabindex="-1" aria-hidden="true"></button>
     <button class="mark" id="mark" aria-expanded="false" aria-controls="panel" aria-label="Открыть меню">
-      <svg viewBox="188 353 937 537" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg viewBox="176 345 961 553" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path fill-rule="evenodd" fill="#FFFFFF" d="
         M391,353 L507,353 L309,890 L188,890 Z
         M557,353 L672,353 L474,890 L360,890 Z
@@ -54,7 +54,6 @@
       <nav>
         <a href="#about">О нас</a>
         <a href="#products">Продукты</a>
-        <a href="#katalozhka">Каталожка</a>
       </nav>
     </div>
   </div>
@@ -63,12 +62,18 @@
 <main>
 
 <section class="hero">
-  <h1 class="sr">Amoboba — темки крутятся, бабки мутятся</h1>
-  <div class="hero-stage" id="hero-stage">
-    <canvas id="silver" aria-hidden="true"></canvas>
+  <canvas class="hero-gpu" id="hero-gpu" aria-hidden="true"></canvas>
+  <div class="hero-paper" aria-hidden="true"></div>
+  <div class="hero-slashes" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="hero-copy">
+    <p class="hero-kicker">Разные проекты. Собственный подход.</p>
+    <h1 data-text="Amoboba">Amoboba</h1>
+    <div class="hero-bottom">
+      <p class="hero-lead">Не одна категория.<br>Не один формат.</p>
+      <a class="hero-action" href="#products">Смотреть проекты <span>↓</span></a>
+    </div>
   </div>
-  <p class="hero-sub">Amoboba</p>
-  <div class="hero-scroll" aria-hidden="true"></div>
+  <svg class="hero-mark" viewBox="188 353 937 537" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" fill="#111111" d="M391,353 L507,353 L309,890 L188,890 Z M557,353 L672,353 L474,890 L360,890 Z M723,353 L879,353 L1125,890 L521,890 Z M803,473 L884,656 L731,656 Z M689,777 L934,777 L984,890 L646,890 Z"/></svg>
 </section>
 
 <!-- фильтр преломления для стекла -->
@@ -88,16 +93,22 @@
 </section>
 
 <div class="logos reveal" id="products">
-  <a class="lg" href="#minland" style="--i:0; --acc:#e59b1c">
+  <span class="lg lg--static" style="--i:0; --acc:#e59b1c">
     <span class="lg-inner"><img class="lg-img" src="assets/img/minland.png" alt="minland" loading="lazy" decoding="async"></span>
-  </a>
-  <a class="lg" href="#warden3" style="--i:1; --acc:#2ad3c4">
+  </span>
+  <span class="lg lg--static" style="--i:1; --acc:#2ad3c4">
+    <span class="lg-inner"><span class="lg-wd">warden</span></span>
+  </span>
+  <span class="lg lg--static" style="--i:2; --acc:#2ad3c4">
+    <span class="lg-inner"><span class="lg-wd">warden<span class="lg-wd-digit">2</span></span></span>
+  </span>
+  <span class="lg lg--static" style="--i:3; --acc:#2ad3c4">
     <span class="lg-inner"><span class="lg-wd">warden<img src="assets/img/warden3-mark.png" alt="3" loading="lazy" decoding="async"></span></span>
-  </a>
-  <a class="lg" href="#sculk-strike" style="--i:2; --acc:#2ad3c4">
+  </span>
+  <span class="lg lg--static" style="--i:4; --acc:#2ad3c4">
     <span class="lg-inner"><img class="lg-img" src="assets/img/sculk-strike.png" alt="Sculk-Strike" loading="lazy" decoding="async"></span>
-  </a>
-  <a class="lg" href="#katalozhka" style="--i:3; --acc:#ff5e0e">
+  </span>
+  <a class="lg" href="#katalozhka" style="--i:5; --acc:#ff5e0e">
     <span class="lg-inner"><svg class="kat-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 383.78 53.74">
   <defs>
     <style>
@@ -117,54 +128,14 @@
   <text class="kt-1" transform="translate(33.78 40.5)"><tspan class="kt-2" x="0" y="0">к</tspan><tspan class="kt-5" x="34.62" y="0">а</tspan><tspan class="kt-4" x="74.05" y="0">т</tspan><tspan x="105.53" y="0">ал</tspan><tspan class="kt-6" x="184.49" y="0">о</tspan><tspan class="kt-5" x="219.85" y="0">ж</tspan><tspan class="kt-2" x="275.95" y="0">к</tspan><tspan x="310.57" y="0">а</tspan></text>
 </svg></span>
   </a>
-  <a class="lg" href="#investconnect" style="--i:4; --acc:#0B57D0">
+  <a class="lg" href="#investconnect" style="--i:6; --acc:#0B57D0">
     <span class="lg-inner"><span class="lg-ic"><img src="assets/img/investconnect-icon.png" alt="" loading="lazy" decoding="async">InvestConnect</span></span>
   </a>
-  <span class="lg lg--empty" aria-hidden="true" style="--i:5"></span>
+  <span class="lg lg--empty" aria-hidden="true" style="--i:7"></span>
 </div>
-
-<!-- ================== MINLAND ================== -->
-<section class="work work--ml reveal" id="minland">
-  <span class="work-eyebrow">Проект 01</span>
-  <div class="ml-sun" aria-hidden="true"></div>
-  <div class="ml-floor" aria-hidden="true"></div>
-  <div class="ml-cubes" aria-hidden="true">
-      <i style="left:8%; top:26%; --s:20px; --r:-9deg; --d:4.5s; --dl:0.25s"></i>
-      <i style="left:17%; top:64%; --s:11px; --r:-14deg; --d:5.7s; --dl:0.36s"></i>
-      <i style="left:29%; top:14%; --s:13px; --r:5deg; --d:5.0s; --dl:0.47s"></i>
-      <i style="left:72%; top:22%; --s:26px; --r:-5deg; --d:3.5s; --dl:0.58s"></i>
-      <i style="left:84%; top:58%; --s:23px; --r:8deg; --d:3.6s; --dl:0.69s"></i>
-      <i style="left:91%; top:32%; --s:12px; --r:17deg; --d:4.6s; --dl:0.8s"></i>
-      <i style="left:63%; top:72%; --s:13px; --r:-4deg; --d:5.2s; --dl:0.91s"></i>
-      <i style="left:41%; top:80%; --s:11px; --r:18deg; --d:5.0s; --dl:1.02s"></i>
-  </div>
-  <img class="ml-logo" src="assets/img/minland.png" alt="minland" loading="lazy" decoding="async">
-  <a class="visit" href="https://minland.ru" target="_blank" rel="noopener">minland.ru <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 9L9 3M9 3H4M9 3V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-</section>
-
-<!-- ================== WARDEN3 ================== -->
-<section class="work work--wd reveal" id="warden3" data-cursor>
-  <span class="work-eyebrow">Проект 02</span>
-  <div class="wd-veins" aria-hidden="true"></div>
-  <div class="wd-echo" aria-hidden="true"></div>
-  <div class="wd-rings" aria-hidden="true">
-    <i style="--dl:0s"></i><i style="--dl:.8s"></i><i style="--dl:1.6s"></i><i style="--dl:2.4s"></i>
-  </div>
-  <div class="wd-mark"><span class="ch" style="--i:0">w</span><span class="ch" style="--i:1">a</span><span class="ch" style="--i:2">r</span><span class="ch" style="--i:3">d</span><span class="ch" style="--i:4">e</span><span class="ch" style="--i:5">n</span><img src="assets/img/warden3-mark.png" alt="3" loading="lazy" decoding="async"></div>
-</section>
-
-<!-- ================== SCULK-STRIKE ================== -->
-<section class="work work--ss reveal" id="sculk-strike">
-  <span class="work-eyebrow">Проект 03</span>
-  <canvas id="ss-canvas" aria-hidden="true"></canvas>
-  <div class="ss-scan" aria-hidden="true"></div>
-  <img class="ss-logo" src="assets/img/sculk-strike.png" alt="Sculk-Strike" loading="lazy" decoding="async">
-  <div class="ss-note" aria-hidden="true"><span>sculk</span><span>strike</span></div>
-</section>
 
 <!-- ================== КАТАЛОЖКА ================== -->
 <section class="work work--kat reveal" id="katalozhka">
-  <span class="work-eyebrow">Проект 04</span>
   <div class="kat-lines" aria-hidden="true"></div>
   <div class="kat-inner">
     <div class="kat-glow" aria-hidden="true"></div>
@@ -189,8 +160,8 @@
 </svg>
     </div>
     <div class="kat-body glass">
-      <p>Каталог техники и, от части, магазинов.</p>
-      <p class="kat-domains"><span>каталожка.рф</span><span>katalozhka.ru</span></p>
+      <p>Каталожка — каталог техники и магазинов. Проект помогает быстрее находить нужные устройства, знакомиться с их характеристиками и переходить к предложениям продавцов без лишней навигации.</p>
+      <p class="kat-domains"><a href="https://xn--80abhzfgcgm.xn--p1ai" target="_blank" rel="noopener">каталожка.рф</a><a href="https://katalozhka.ru" target="_blank" rel="noopener">katalozhka.ru</a></p>
     </div>
     <a class="kat-btn glass" href="https://katalozhka.ru" target="_blank" rel="noopener"><i class="sheen"></i>Перейти на сайт</a>
   </div>
@@ -201,65 +172,36 @@
 
 <!-- ================== INVESTCONNECT ================== -->
 <section class="work work--ic reveal" id="investconnect">
-  <span class="work-eyebrow">Проект 05</span>
   <div class="ic-blob a" aria-hidden="true"></div>
   <div class="ic-blob b" aria-hidden="true"></div>
-  <div class="ic-orbit" aria-hidden="true">
-      <i style="--a:-8.1deg; --r:240px; --s:17px; --c:#D3E3FD; --dl:0.0s"></i>
-      <i style="--a:41.0deg; --r:240px; --s:25px; --c:#C2E7FF; --dl:0.4s"></i>
-      <i style="--a:78.5deg; --r:180px; --s:34px; --c:#0B57D0; --dl:0.8s"></i>
-      <i style="--a:116.6deg; --r:240px; --s:19px; --c:#A8C7FA; --dl:1.2s"></i>
-      <i style="--a:161.5deg; --r:240px; --s:27px; --c:#B9E6FE; --dl:1.6s"></i>
-      <i style="--a:192.8deg; --r:180px; --s:34px; --c:#7CACF8; --dl:2.0s"></i>
-      <i style="--a:232.1deg; --r:240px; --s:31px; --c:#D3E3FD; --dl:2.4s"></i>
-      <i style="--a:283.2deg; --r:350px; --s:40px; --c:#C2E7FF; --dl:2.8s"></i>
-      <i style="--a:316.7deg; --r:350px; --s:27px; --c:#0B57D0; --dl:3.2s"></i>
+  <div class="ic-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="ic-promo">
+    <div class="ic-copy">
+      <div class="ic-brand"><span class="ic-brand-mark"><img src="assets/img/investconnect-icon.png" alt="" loading="lazy" decoding="async"></span> InvestConnect</div>
+      <h2>Ваш портфель.<br><span>Вся сила AI.</span></h2>
+      <p class="project-description ic-description">Подключайте инвестиционный портфель к Claude, GPT, Gemini и другим нейросетям. Сравнивайте сценарии, задавайте вопросы по активам и превращайте сложные данные в понятные решения.</p>
+      <div class="ic-cta-row"><a class="ic-cta" href="https://t.me/InvestConnect_bot" target="_blank" rel="noopener">Открыть бота InvestConnect <span>↗</span></a><span class="ic-caption">один коннектор · несколько моделей</span></div>
+    </div>
+    <div class="ic-dashboard" aria-label="Пример интерфейса InvestConnect">
+      <div class="ic-dashboard-top"><span>Мой портфель</span><b>+12,8%</b></div>
+      <div class="ic-total">₽ 2 480 320 <small>за всё время</small></div>
+      <svg class="ic-chart" viewBox="0 0 620 180" aria-hidden="true"><defs><linearGradient id="ic-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ab4f8" stop-opacity=".55"/><stop offset="1" stop-color="#8ab4f8" stop-opacity="0"/></linearGradient></defs><path class="ic-area" d="M8 150 L70 132 L132 141 L194 104 L256 118 L318 74 L380 88 L442 46 L504 58 L566 20 L566 170 L8 170 Z"/><path class="ic-line" d="M8 150 L70 132 L132 141 L194 104 L256 118 L318 74 L380 88 L442 46 L504 58 L566 20"/><circle class="ic-dot" cx="566" cy="20" r="6"/></svg>
+      <div class="ic-models"><span class="ic-model ic-model--claude">claude</span><span class="ic-model ic-model--gpt">GPT</span><span class="ic-model ic-model--gemini">✦ Gemini</span></div>
+    </div>
   </div>
-  <div class="ic-head">
-    <div class="ic-badge"><img src="assets/img/investconnect-icon.png" alt="" loading="lazy" decoding="async"></div>
-    <div class="ic-title">InvestConnect</div>
-  </div>
-  <svg class="ic-chart" viewBox="0 0 620 180" aria-hidden="true">
-    <path d="M8 150 L70 132 L132 141 L194 104 L256 118 L318 74 L380 88 L442 46 L504 58 L566 20"/>
-    <circle class="ic-dot" cx="566" cy="20" r="6"/>
-  </svg>
 </section>
 
 </main>
 
-<footer class="site-foot">
-  <div class="foot-top">
-    <div class="foot-mark"><svg viewBox="188 353 937 537" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill-rule="evenodd" fill="#FFFFFF" d="
-        M391,353 L507,353 L309,890 L188,890 Z
-        M557,353 L672,353 L474,890 L360,890 Z
-        M723,353 L879,353 L1125,890 L521,890 Z
-        M803,473 L884,656 L731,656 Z
-        M689,777 L934,777 L984,890 L646,890 Z"/>
-    </svg></div>
-    <nav class="foot-nav">
-      <div class="foot-col">
-        <b>Проекты</b>
-        <a href="#minland">minland</a>
-        <a href="#warden3">warden3</a>
-        <a href="#sculk-strike">Sculk-Strike</a>
-        <a href="#katalozhka">Каталожка</a>
-        <a href="#investconnect">InvestConnect</a>
-      </div>
-      <div class="foot-col">
-        <b>Сайты</b>
-        <a href="https://minland.ru" target="_blank" rel="noopener">minland.ru</a>
-        <a href="https://katalozhka.ru" target="_blank" rel="noopener">katalozhka.ru</a>
-        <a href="https://xn--80abhzfgcgm.xn--p1ai" target="_blank" rel="noopener">каталожка.рф</a>
-      </div>
-    </nav>
-  </div>
-  <div class="foot-bottom">
-    <span>&copy; 2026 Amoboba</span>
-    <span>Темки крутятся, <em>бабки мутятся</em></span>
-  </div>
-</footer>
+<amoboba-footer
+  logo-side="random"
+  telegram="@amoboba"
+  telegram-url="https://t.me/amoboba"
+  email="contact@amoboba.ru"
+  copyright="© 2026 Amoboba"
+></amoboba-footer>
 
+<script src="assets/components/amoboba-footer.js"></script>
 <script src="assets/js/main.js" defer></script>
 </body>
 </html>
